@@ -9,7 +9,7 @@ const roundMatcher = new RegExp(
   `^(.+)${nl}(=+)${nl}$`,
   "gim"
 );
-const missionNameLine = "\\s{3}\\+\\+\\+\\s(.+)";
+const missionNameLine = "\\s{3}\\+\\+\\+(\\s)*(.+)";
 const missionNameMatcher = new RegExp(
   `^(.+)${nl}${missionNameLine}${nl}$`,
   "gim"
@@ -64,23 +64,19 @@ for (let i = 0; i < blocks.length; i += 1) {
       .replace(/=/g, "");
   }
 
-  const cleanMissionName =
-    missionName &&
-    missionName[0]
-      .removeNewlines()
-      .trim()
-      .replace(/^Mission\s\d(\d*)\s\s\s/g, "")
-      .replace(/\+\+\+/g, "")
-      .trim();
+  const cleanMissionName = missionName[0]
+    .removeNewlines()
+    .trim()
+    .replace(/^Mission\s\d(\d*)\s\s\s/g, "")
+    .replace(/\+\+\+/g, "")
+    .trim();
 
-  const cleanOppositionName =
-    oppositionName &&
-    oppositionName[0]
-      .removeNewlines()
-      .trim()
-      .replace("My score: ", "")
-      .replace(/\s-(.+)$/g, "")
-      .trim();
+  const cleanOppositionName = oppositionName[0]
+    .removeNewlines()
+    .trim()
+    .replace("My score: ", "")
+    .replace(/\s-(.+)$/g, "")
+    .trim();
 
   const getCleanConditions = contentBlock => {
     return contentBlock
@@ -113,5 +109,33 @@ for (let i = 0; i < blocks.length; i += 1) {
   });
 }
 
-console.log(missions);
-document.write("<pre>" + WorldTourRaw + "</pre>");
+const toTitleCase = s =>
+  s.replace(/\b[a-zA-Z]/g, match => match.toUpperCase());
+
+// Print csv
+const csvHeader =
+  "Round,Mission Name,Opposition,Starting Requirements,Clear Conditions";
+const csvBody = missions.reduce((csvString, mission) => {
+  const {
+    roundName,
+    missionName,
+    startingRequirements,
+    clearConditions,
+    oppositionName
+  } = mission;
+  csvString +=
+    "\n" +
+    roundName +
+    "," +
+    toTitleCase(missionName) +
+    "," +
+    oppositionName +
+    "," +
+    `"${startingRequirements.join(", ")}"` +
+    "," +
+    `"${clearConditions.join(", ")}"`;
+  return csvString;
+}, "");
+
+const csv = csvHeader + csvBody;
+document.write("<pre>" + csv + "</pre>");
