@@ -101,7 +101,7 @@ for (let i = 0; i < blocks.length; i += 1) {
   );
 
   missions.push({
-    roundName: round,
+    roundName: round.trim(),
     missionName: cleanMissionName,
     startingRequirements,
     clearConditions,
@@ -125,15 +125,13 @@ const csvBody = missions.reduce((csvString, mission) => {
   } = mission;
   csvString +=
     "\n" +
-    roundName +
-    "," +
-    toTitleCase(missionName) +
-    "," +
-    oppositionName +
-    "," +
-    `"${startingRequirements.join(", ")}"` +
-    "," +
-    `"${clearConditions.join(", ")}"`;
+    [
+      roundName,
+      toTitleCase(missionName),
+      oppositionName,
+      `"${startingRequirements.join(", ")}"`,
+      `"${clearConditions.join(", ")}"`
+    ].join(",");
   return csvString;
 }, "");
 
